@@ -1,7 +1,9 @@
+from drf_spectacular.utils import extend_schema
 from rest_framework import viewsets
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.serializers import ListSerializer
+
 from .models import Category
 from .serializers import CategorySerializer
 
@@ -13,6 +15,7 @@ class CategoryViewSet(viewsets.ViewSet):
 
     queryset = Category.objects.all()
 
+    @extend_schema(responses=CategorySerializer)
     def list(self, request: Request):
         serializer: ListSerializer = CategorySerializer(
             self.queryset,
