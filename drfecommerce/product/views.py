@@ -47,6 +47,14 @@ class ProductViewSet(viewsets.ViewSet):
     """
 
     queryset = Product.objects.all()
+    lookup_field = "slug"
+
+    def retrieve(self, request: Request, slug=None):
+        serializer: ListSerializer = ProductSerializer(
+            self.queryset.filter(slug=slug),
+            many=True,
+        )
+        return Response(serializer.data)
 
     @extend_schema(responses=ProductSerializer)
     def list(self, request: Request):
@@ -62,7 +70,7 @@ class ProductViewSet(viewsets.ViewSet):
         url_path=r"category/(?P<category>\w+)/all",
         url_name="all",
     )
-    def list_product_by_category(self, request, category=None):
+    def list_product_by_category(self, request: Request, category=None):
         """
         Endpoint to return products by category
         """
