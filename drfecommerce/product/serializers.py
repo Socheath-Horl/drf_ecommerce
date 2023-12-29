@@ -16,9 +16,11 @@ class BrandSerializer(serializers.ModelSerializer):
 
 
 class CategoryMinSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="name")
+
     class Meta:
         model = Category
-        fields = ["name"]
+        fields = ["category_name"]
 
 
 class BrandMinSerializer(serializers.ModelSerializer):
@@ -27,18 +29,32 @@ class BrandMinSerializer(serializers.ModelSerializer):
         fields = ["name"]
 
 
-class ProductSerializer(serializers.ModelSerializer):
-    brand = BrandMinSerializer()
-    category = CategoryMinSerializer()
-
-    class Meta:
-        model = Product
-        fields = "__all__"
-
-
 class ProductLineSerializer(serializers.ModelSerializer):
-    product = ProductSerializer()
-
     class Meta:
         model = ProductLine
         fields = "__all__"
+
+
+class ProductLineMinSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductLine
+        exclude = ["id", "is_active", "product"]
+
+
+class ProductSerializer(serializers.ModelSerializer):
+    # brand = BrandMinSerializer()
+    # category = CategoryMinSerializer()
+    brand_name = serializers.CharField(source="brand.name")
+    category_name = serializers.CharField(source="category.name")
+    product_line = ProductLineMinSerializer(many=True)
+
+    class Meta:
+        model = Product
+        fields = [
+            "name",
+            "slug",
+            "description",
+            "brand_name",
+            "category_name",
+            "product_line",
+        ]
