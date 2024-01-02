@@ -1,5 +1,10 @@
+from collections.abc import Collection
+
+from django.core.exceptions import ValidationError
 from django.db import models
 from mptt.models import MPTTModel, TreeForeignKey
+
+from .fields import OrderField
 
 
 class ActiveQuerySet(models.QuerySet):
@@ -66,5 +71,16 @@ class ProductLine(models.Model):
         related_name="product_line",
     )
     is_active = models.BooleanField(default=False)
+    order = OrderField(unique_for_field="product", blank=True)
 
     objects = ActiveQuerySet.as_manager()
+
+    def clean_fields(self, exclude: Collection[str] | None = ...) -> None:
+        super().clean_fields(exclude)
+        qs = ProductLine.objects.filter(product=self.product)
+        for obj in qs:
+            if self.id != obj.id and self.order == obj.order:
+                raise ValidationError("Duplication value.")
+
+    def __str__(self) -> str:
+        return str(self.order)
