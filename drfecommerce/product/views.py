@@ -14,7 +14,7 @@ class CategoryViewSet(viewsets.ViewSet):
     A Simple Viewset for viewing categories
     """
 
-    queryset = Category.objects.all().is_active()
+    queryset = Category.objects.all()
 
     @extend_schema(responses=CategorySerializer)
     def list(self, request: Request):
@@ -30,7 +30,7 @@ class BrandViewSet(viewsets.ViewSet):
     A Simple Viewset for viewing brands
     """
 
-    queryset = Brand.objects.all().is_active()
+    queryset = Brand.objects.all()
 
     @extend_schema(responses=BrandSerializer)
     def list(self, request: Request):
@@ -67,15 +67,14 @@ class ProductViewSet(viewsets.ViewSet):
     @action(
         methods=["get"],
         detail=False,
-        url_path=r"category/(?P<category>\w+)/all",
-        url_name="all",
+        url_path=r"category/(?P<slug>[\w-]+)",
     )
-    def list_product_by_category(self, request: Request, category=None):
+    def list_product_by_category_slug(self, request: Request, slug=None):
         """
         Endpoint to return products by category
         """
         serializer: ListSerializer = ProductSerializer(
-            self.queryset.filter(category__name=category),
+            self.queryset.filter(category__slug=slug),
             many=True,
         )
         return Response(serializer.data)
